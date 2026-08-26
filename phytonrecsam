@@ -1,0 +1,175 @@
+import random
+
+def play_math_game():
+    score = 0
+    lives = 3
+    total_questions_attempted = 0
+    MAX_QUESTIONS_PER_LEVEL = 5
+
+    # Level settings: defines the maximum number used for questions in each level
+    level_settings = {
+        'basic': {'max_num': 12},
+        'intermediate': {'max_num': 25},
+        'advanced': {'max_num': 50}
+    }
+
+    # --- Bilingual UI Messages ---
+    messages = {
+        'en': {
+            'welcome': "--- 🚀 Welcome to the Computational Fluency Game! 🚀 ---",
+            'info': "You have {lives} ❤️ lives. Advance levels by answering 3 questions correctly in a row or completing 5 questions in a level. \n",
+            'choose_level': "Choose your starting difficulty level (basic, intermediate, advanced): ",
+            'invalid_level': "Invalid choice. Please type 'basic', 'intermediate', or 'advanced'.",
+            'level_chosen': "Great! You've chosen the {level} level to start. Let's begin! 👇\n",
+            'starting_level': "--- Starting {level_name} level! Numbers up to {max_num}. ---",
+            'question': "Question {q_num}: What is {num1} {operation} {num2}? 🤔 ",
+            'invalid_input': "Invalid input! 🚫 Please enter a number.",
+            'correct': "Correct! 🎉 Your score: {score} 🌟, Lives: {lives} ❤️\n",
+            'incorrect': "Incorrect. ❌ The correct answer was {correct_answer}. Your score: {score} 🌟, Lives: {lives} ❤️\n",
+            'no_lives': "Oh no! 😭 You've run out of lives.",
+            'level_up_streak': "🎉 Level Up! You mastered {level_name} by answering 3 correctly in a row! 🚀",
+            'level_up_completed': "✅ Level Up! You completed all questions in {level_name}! 🚀",
+            'next_level': "Next up: {level_name} level! Prepare yourself! 👇",
+            'all_levels_completed': "🏆 Congratulations! You've completed all levels! You are a Math Master! ✨",
+            'game_over': "--- Game Over! 🏁 ---",
+            'questions_answered': "Total Questions Attempted: {q_count}. 📝",
+            'final_score': "Final Score: {score} 🏆",
+            'completed_all': "Congratulations, you finished the game! ✨",
+            'try_again': "Better luck next time! 👍"
+        },
+        'id': {
+            'welcome': "--- 🚀 Selamat Datang di Permainan Kelancaran Berhitung! 🚀 ---",
+            'info': "Anda memiliki {lives} ❤️ nyawa. Naikkan level dengan menjawab 3 pertanyaan dengan benar berturut-turut atau menyelesaikan 5 pertanyaan dalam satu level. \n",
+            'choose_level': "Pilih tingkat kesulitan awal Anda (basic, intermediate, advanced): ",
+            'invalid_level': "Pilihan tidak valid. Mohon ketik 'basic', 'intermediate', atau 'advanced'.",
+            'level_chosen': "Bagus! Anda memilih level {level} untuk memulai. Ayo mulai! 👇\n",
+            'starting_level': "--- Memulai level {level_name}! Angka hingga {max_num}. ---",
+            'question': "Pertanyaan {q_num}: Berapakah {num1} {operation} {num2}? 🤔 ",
+            'invalid_input': "Masukan tidak valid! 🚫 Mohon masukkan angka.",
+            'correct': "Benar! 🎉 Skor Anda: {score} 🌟, Nyawa: {lives} ❤️\n",
+            'incorrect': "Salah. ❌ Jawaban yang benar adalah {correct_answer}. Skor Anda: {score} 🌟, Nyawa: {lives} ❤️\n",
+            'no_lives': "Oh tidak! 😭 Nyawa Anda habis.",
+            'level_up_streak': "🎉 Naik Level! Anda menguasai level {level_name} dengan menjawab 3 benar berturut-turut! 🚀",
+            'level_up_completed': "✅ Naik Level! Anda menyelesaikan semua pertanyaan di level {level_name}! 🚀",
+            'next_level': "Selanjutnya: level {level_name}! Bersiaplah! 👇",
+            'all_levels_completed': "🏆 Selamat! Anda telah menyelesaikan semua level! Anda adalah Master Matematika! ✨",
+            'game_over': "--- Permainan Selesai! 🏁 ---",
+            'questions_answered': "Total Pertanyaan yang Dicoba: {q_count}. 📝",
+            'final_score': "Skor Akhir: {score} 🏆",
+            'completed_all': "Selamat, Anda menyelesaikan permainan! ✨",
+            'try_again': "Semoga berhasil di lain waktu! 👍"
+        }
+    }
+
+    # Language Selection
+    lang = input("Choose your language (en/id): ").lower()
+    while lang not in ['en', 'id']:
+        lang = input("Invalid choice. Please type 'en' for English or 'id' for Indonesian: ").lower()
+
+    print(messages[lang]['welcome'])
+    print(messages[lang]['info'].format(lives=lives))
+
+    # Level setup
+    level_names = list(level_settings.keys())
+    current_level_index = 0
+
+    # Initial Level Selection
+    chosen_start_level = input(messages[lang]['choose_level']).lower()
+    while chosen_start_level not in level_settings:
+        chosen_start_level = input(messages[lang]['invalid_level']).lower()
+    current_level_index = level_names.index(chosen_start_level)
+    current_level_name = chosen_start_level
+
+    print(messages[lang]['level_chosen'].format(level=current_level_name))
+
+    operations = ['+', '-', '*', '/']
+
+    # Outer loop for levels
+    while lives > 0 and current_level_index < len(level_names):
+        current_level_name = level_names[current_level_index] # Ensure current_level_name is always updated
+        MAX_NUMBER = level_settings[current_level_name]['max_num']
+        question_count_in_level = 0
+        consecutive_correct_answers = 0
+
+        print(messages[lang]['starting_level'].format(level_name=current_level_name.capitalize(), max_num=MAX_NUMBER))
+
+        # Inner loop for questions within a level
+        while question_count_in_level < MAX_QUESTIONS_PER_LEVEL and lives > 0 and consecutive_correct_answers < 3:
+            question_count_in_level += 1
+            total_questions_attempted += 1
+
+            operation = random.choice(operations)
+
+            if operation == '/':
+                # Ensure divisor is not zero and result is whole number
+                num2 = random.randint(1, MAX_NUMBER) # Divisor
+                # Choose a correct_answer (quotient) such that num2 * correct_answer <= MAX_NUMBER
+                max_possible_quotient = MAX_NUMBER // num2 if num2 != 0 else 1
+                if max_possible_quotient == 0:
+                    max_possible_quotient = 1 # Ensures quotient is at least 1
+                correct_answer = random.randint(1, max_possible_quotient)
+                num1 = num2 * correct_answer
+            else:
+                num1 = random.randint(1, MAX_NUMBER)
+                num2 = random.randint(1, MAX_NUMBER)
+                # Ensure subtraction doesn't result in negative for beginner-friendly
+                if operation == '-' and num1 < num2:
+                    num1, num2 = num2, num1 # Swap to ensure num1 >= num2
+
+                # Calculate the correct answer for +, -, *
+                if operation == '+':
+                    correct_answer = num1 + num2
+                elif operation == '-':
+                    correct_answer = num1 - num2
+                else: # operation == '*'
+                    correct_answer = num1 * num2
+
+            question_str = messages[lang]['question'].format(q_num=question_count_in_level, num1=num1, operation=operation, num2=num2)
+
+            try:
+                player_answer = int(input(question_str))
+            except ValueError:
+                print(messages[lang]['invalid_input'])
+                player_answer = None # Set to None to mark as incorrect
+
+            if player_answer == correct_answer:
+                score += 10
+                consecutive_correct_answers += 1
+                print(messages[lang]['correct'].format(score=score, lives=lives))
+            else:
+                lives -= 1
+                consecutive_correct_answers = 0 # Reset streak on incorrect answer
+                if player_answer is not None: # Only show incorrect if they actually entered something
+                    print(messages[lang]['incorrect'].format(correct_answer=correct_answer, score=score, lives=lives))
+                if lives == 0:
+                    print(messages[lang]['no_lives'])
+                    break # Break from inner loop if lives run out
+
+        # Check for level advancement conditions after inner loop finishes (either by questions, streak, or lives)
+        if lives > 0: # Only check for advancement if game is not over due to lives
+            if consecutive_correct_answers >= 3: # Advanced by streak
+                print(messages[lang]['level_up_streak'].format(level_name=current_level_name.capitalize()))
+                current_level_index += 1
+                if current_level_index < len(level_names): # If there's a next level
+                    print(messages[lang]['next_level'].format(level_name=level_names[current_level_index].capitalize()))
+                # Else, all levels completed, outer loop condition will handle termination
+            elif question_count_in_level == MAX_QUESTIONS_PER_LEVEL: # Advanced by completing all questions in level
+                print(messages[lang]['level_up_completed'].format(level_name=current_level_name.capitalize()))
+                current_level_index += 1
+                if current_level_index < len(level_names): # If there's a next level
+                    print(messages[lang]['next_level'].format(level_name=level_names[current_level_index].capitalize()))
+                # Else, all levels completed
+        else:
+            break # Break outer loop if lives ran out during a level
+
+    print(messages[lang]['game_over'])
+    print(messages[lang]['questions_answered'].format(q_count=total_questions_attempted))
+    print(messages[lang]['final_score'].format(score=score))
+
+    if lives > 0 and current_level_index >= len(level_names): # Player won by completing all levels
+        print(messages[lang]['all_levels_completed'])
+    else: # Player lost or did not complete all levels
+        print(messages[lang]['try_again'])
+
+# Run the game
+play_math_game()
